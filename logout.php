@@ -1,7 +1,13 @@
 <?php
-   session_start();
-   
-   if(session_destroy()) {
-      header("Location: login.php");
-   }
+
+session_start();
+ 
+$_SESSION = array();
+
+session_destroy();
+ 
+// Redirect to login page
+header("location: login.php");
+exit;
+
 ?>

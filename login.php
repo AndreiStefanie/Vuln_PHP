@@ -1,16 +1,22 @@
 <?php
-require_once 'config.php';
+require_once 'config/db.php';
+include_once 'inc/log.php';
+require_once 'session.php';
 
 $username = $password = "";
 $username_err = $password_err = "";
 
-$sql = "SELECT username, password FROM users WHERE username = ?";
+$sql = 'SELECT id, username, password, is_admin FROM user WHERE username = ?';
 $stmt = $mysqli->prepare($sql);
 
-do {
+do {  
     // Handle only POST method
-    if($_SERVER["REQUEST_METHOD"] == "POST") {
-        exit;
+    if($_SERVER["REQUEST_METHOD"] !== "POST") {
+        break;
+    }
+
+    if(!$stmt) {
+        break;
     }
 
     $username = $mysqli->real_escape_string(trim($_POST["username"]));
@@ -18,72 +24,73 @@ do {
 
     // Check if username is empty
     if(empty($username)) {
-        $username_err = 'Please enter username.';
-        exit;
+        $username_err = 'Please enter your username.';
+        break;
     }
 
     // Check if password is empty
     if(empty($password)) {
         $password_err = 'Please enter your password.';
-        exit;
+        break;
     }
 
-    // Bind variables to the prepared statement as parameters
     $stmt->bind_param("s", $param_username);
 
-    // Set parameters
+    // Set the statement parameters
     $param_username = $username;
 
     // Attempt to execute the prepared statement
     if(!$stmt->execute()) {
-        echo "Oops! Something went wrong. Please try again later.";
-        exit;
+        echo 'Oops! Something went wrong. Please try again later.';
+        break;
     }
-        
-    // Store result
+
     $stmt->store_result();
     
     // Check if username exists, if yes then verify password
     if($stmt->num_rows !== 1) {
-        $username_err = 'No account found with that username.';
-        exit;    
+        $username_err = 'Username not found.';
+        break;    
     }
         
     // Bind result variables
-    $stmt->bind_result($username, $hashed_password);
-    if($stmt->fetch()) {
-        if(password_verify($password, $hashed_password)) {
-            /* Password is correct, so start a new session and
-            save the username to the session */
-            session_start();
-            $_SESSION['username'] = $username;      
-            header("location: welcome.php");
-        } else {
-            // Display an error message if password is not valid
-            $password_err = 'The password you entered was not valid.';
-        }
+    $stmt->bind_result($userID, $username, $hashed_password, $type);
+
+    if(!$stmt->fetch()) {
+        break;
     }
+
+    if(password_verify($password, $hashed_password)) {
+        session_start();
+        store_in_session('userID', $userID);
+        store_in_session('username', $username);
+        store_in_session('type', $type);
+        header('location: dashboard.php');
+    } else {
+        $password_err = 'The password you entered was not valid.';
+    }
+
+    $stmt->close();
 } while(false);
 
-$stmt->close();
 $mysqli->close();
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <style type="text/css">
         body{ font: 14px sans-serif; }
-        .wrapper{ width: 350px; padding: 20px; }
+        .wrapper{ width: 450px; padding: 20px; margin: 0 auto; }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <h2>Login</h2>
-        <p>Please fill in your credentials to login.</p>
+        <p>Please fill in your credentials.</p>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
                 <label>Username:<sup>*</sup></label>
@@ -98,7 +105,7 @@ $mysqli->close();
             <div class="form-group">
                 <input type="submit" class="btn btn-primary" value="Submit">
             </div>
-            <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
+            <!-- <p>Don't have an account? <a href="register.php">Sign up now</a>.</p> -->
         </form>
     </div>    
 </body>

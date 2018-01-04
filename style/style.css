@@ -1,0 +1,50 @@
+.left-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.right-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+@media (max-width: 1200px) {
+    .left-panel {
+        height: 50%
+    }
+    .right-panel {
+        height: 50%
+    }
+}
+
+.comment-section {
+    position: relative;
+    width: 100%;
+}
+
+.new-comment1 {
+    position: absolute;
+    width: 600px;
+    top: 10px;
+}
+
+.comments {
+    position: relative;
+    top: 150px;
+    width: 600px;
+}
+
+.file-section {
+    position: relative;
+    width: 100%;
+}
+
+.command-section {
+    position: relative;
+    width: 100%;
+    top: 1000px;
+}
