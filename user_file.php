@@ -1,5 +1,6 @@
 <?php
 include_once 'session.php';
+include_once 'inc/util.php';
 
 /**
  * Echo the filename form.
@@ -11,9 +12,9 @@ function echoFileForm()
     echo '<form method="GET" class="form nocsrf" action="">' .
             '<div class="form-group">' .
                 '<label for="filename">Filename</label>' .
-                '<input type="text" name="filename" name class="form-control">' .
+                '<input type="text" required name="filename" name class="form-control">' .
             '</div>' .
-            '<input type="submit" value="Display" class="btn btn-default">' .
+            '<input type="submit" value="Display" class="btn btn-success">' .
          '</form>';
 }
 
@@ -36,15 +37,17 @@ function getFileContent()
         return;
     }
 
-    $expectedDir = __DIR__ . '\\' . get_from_session('userID');
+    $expectedDir = realpath(__DIR__ . '/' . get_from_session('userID'));
     
     if ($expectedDir !== dirname($realPath)) {
-        trigger_error("Path traversal attempt found" . $expectedDir, E_USER_ERROR);
+        trigger_error("Path traversal attempt found", E_USER_ERROR);
         return;
     }
     
     echo '<div class="fileContent">' .
          '<div class="well">' .
-         '<p>' . nl2br(sanitizeString(file_get_contents($filename))) . '</p>' . 
+         '<p>';
+    xecho(file_get_contents($filename));
+    echo '</p>' . 
          '</div>';
 }

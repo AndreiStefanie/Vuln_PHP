@@ -15,13 +15,15 @@ function getComments($mysqli)
     $posts = $mysqli->store_result();
     $mysqli->close();
 
-    echo '<div class="comments">' . 
+    echo '<div class="userOutput">' . 
          '<h2>Posts</h2>';
     foreach($posts as $post) {
         echo '<div class="well">' . 
                 '<small><b>' . sanitizeString($post['author']) . '</b> ' . 
                 sanitizeString($post['created_at']) . '</small>' .
-                '<p>' . nl2br(sanitizeString($post['comment'])) . '</p>' .
+                '<p>';
+        xecho($post['comment']); 
+        echo '</p>' .
              '</div>';
     }
 
