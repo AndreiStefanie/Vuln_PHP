@@ -16,5 +16,5 @@ function sanitizeString($string, $encoding = 'UTF-8')
  * @return void
  */
 function xecho($string) {
-    echo sanitizeString($string);
+    echo nl2br(sanitizeString($string));
 }

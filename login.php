@@ -1,6 +1,5 @@
 <?php
 require_once 'config/db.php';
-include_once 'inc/log.php';
 require_once 'session.php';
 
 $username = $password = "";
@@ -11,11 +10,11 @@ $stmt = $mysqli->prepare($sql);
 
 do {  
     // Handle only POST method
-    if($_SERVER["REQUEST_METHOD"] !== "POST") {
+    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
         break;
     }
 
-    if(!$stmt) {
+    if (!$stmt) {
         break;
     }
 
@@ -23,13 +22,13 @@ do {
     $password = $mysqli->real_escape_string(trim($_POST["password"]));
 
     // Check if username is empty
-    if(empty($username)) {
+    if (empty($username)) {
         $username_err = 'Please enter your username.';
         break;
     }
 
     // Check if password is empty
-    if(empty($password)) {
+    if (empty($password)) {
         $password_err = 'Please enter your password.';
         break;
     }
@@ -40,7 +39,7 @@ do {
     $param_username = $username;
 
     // Attempt to execute the prepared statement
-    if(!$stmt->execute()) {
+    if (!$stmt->execute()) {
         echo 'Oops! Something went wrong. Please try again later.';
         break;
     }
@@ -48,30 +47,30 @@ do {
     $stmt->store_result();
     
     // Check if username exists, if yes then verify password
-    if($stmt->num_rows !== 1) {
+    if ($stmt->num_rows !== 1) {
         $username_err = 'Username not found.';
         break;    
     }
         
     // Bind result variables
-    $stmt->bind_result($userID, $username, $hashed_password, $type);
+    $stmt->bind_result($userID, $username, $hashed_password, $is_admin);
 
-    if(!$stmt->fetch()) {
+    if (!$stmt->fetch()) {
         break;
     }
 
-    if(password_verify($password, $hashed_password)) {
+    if (password_verify($password, $hashed_password)) {
         session_start();
         store_in_session('userID', $userID);
         store_in_session('username', $username);
-        store_in_session('type', $type);
+        store_in_session('is_admin', $is_admin);
         header('location: dashboard.php');
     } else {
         $password_err = 'The password you entered was not valid.';
     }
 
     $stmt->close();
-} while(false);
+} while (false);
 
 $mysqli->close();
 ?>
@@ -105,7 +104,6 @@ $mysqli->close();
             <div class="form-group">
                 <input type="submit" class="btn btn-primary" value="Submit">
             </div>
-            <!-- <p>Don't have an account? <a href="register.php">Sign up now</a>.</p> -->
         </form>
     </div>    
 </body>

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-<?php if($_SESSION['type']) { echo 'inverse'; } else { echo 'default'; } ?>">
+<nav class="navbar navbar-<?php if($_SESSION['is_admin']) { echo 'inverse'; } else { echo 'default'; } ?>">
     <div class="container">
     <div class="navbar-header">
         <button type="button" class="navbar-toggle collapsed" 
